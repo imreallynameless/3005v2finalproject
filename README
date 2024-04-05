@@ -1,0 +1,83 @@
+COMP 3005 Final Project V2 - Health and Fitness Club Manangement System
+Lei Wu 101186940
+
+
+
+Below is the
+------------------------------------------------------------
+Members
+- ID
+- FirstName
+- LastName
+-- FitnessGoals
+- Weight
+- Time
+- personalizedDashboard
+-- exercise routines
+-- fitness achievements
+-- health statistics
+* functions:
+- user registration (make new user)
+- profile management (updating personal information, fitness goals, health statistics)
+- dashboard display (Displaying exercise routines, fitness achievements, health statistics)
+- schedule management (schduling personal training session or group fitness classes. The system must ensure that the trainer is available)
+-- schedule
+-- reschdule
+-- cancel
+-- register
+
+------------------------------------------------------------
+
+Trainer
+- ID
+- FirstName
+- LastName
+- Classes
+- Availability (time)
+* functions:
+-- schedule management (Trainer can set their availability)
+-- Member Profile Viewing (Search by Member's name)
+
+-------------------------------------------------------------
+
+Administator
+- ID
+- FirstName
+- LastName
+* functions:
+- Room Booking Management
+- Equipment Maintenance Monitoring
+- Class Schedule Updating
+- Billing Management
+- Payment Processing
+
+-------------------------------------------------------------
+personalTraining
+- Trainer
+- Member
+- Date
+- Time
+
+-------------------------------------------------------------
+
+GroupClasses
+- Trainer
+- Member(s)
+- Date
+- Time
+
+------------------------------------------------------------
+
+Rooms
+- RoomID
+- Roombooking
+- Equipment
+
+------------------------------------------------------------
+
+Equipment
+- EquipmentID
+- EquipmentName
+- EquipmentStatus
+
+------------------------------------------------------------
