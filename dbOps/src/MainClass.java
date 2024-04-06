@@ -302,8 +302,88 @@ public class MainClass {
                     int trainerChoice = scanner.nextInt();
                     scanner.nextLine();
                     if (trainerChoice == 1){
-                        
+                        System.out.println("Welcome to the Schedule Management");
+                        boolean scheduleFlag = true;
+                        while (scheduleFlag){
+                            System.out.println("Please select an option below:");
+                            System.out.println("1. View Schedule");
+                            System.out.println("2. Set Availability");
+                            System.out.println("3. Schedule Personal Training Session");
+                            System.out.println("4. Reschedule Personal Training Session");
+                            System.out.println("5. Cancel Personal Training Session");
+                            System.out.println("6. exit");
+                            System.out.println("Enter your choice: ");
+                            int scheduleChoice = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (scheduleChoice == 1){
+                                dbOps.viewTrainerSchedule(id);
+                            }
+
+                            else if (scheduleChoice == 2){
+                                dbOps.getAvaliableMembers();
+                                System.out.println("Enter member id: ");
+                                int member_id = scanner.nextInt();
+                                scanner.nextLine();
+                                System.out.println("Enter session time (in format yyyy-MM-dd HH:mm:ss): ");
+                                String session_time = scanner.nextLine();
+                                dbOps.schedulePersonalTraining(member_id, id, session_time);
+                            }
+
+                            else if (scheduleChoice == 3){
+                                dbOps.viewTrainerSchedule(id);
+                                System.out.println("Enter session id: ");
+                                int session_id = scanner.nextInt();
+                                scanner.nextLine();
+                                System.out.println("Enter new session time (in format yyyy-MM-dd HH:mm:ss): ");
+                                String new_session_time = scanner.nextLine();
+                                dbOps.reschedulePersonalTraining(session_id, new_session_time);
+                            }
+
+                            else if (scheduleChoice == 4){
+                                dbOps.viewTrainerSchedule(id);
+                                System.out.println("Enter session id: ");
+                                int session_id = scanner.nextInt();
+                                scanner.nextLine();
+                                dbOps.cancelPersonalTraining(session_id);
+                            }
+                            else if (scheduleChoice == 5){
+                                scheduleFlag = false;
+                            }
+                            else{
+                                System.out.println("Invalid choice");
+                            }
+                        }
                     }
+                    else if (trainerChoice == 2){
+                        System.out.println("Welcome to the Member Profile Viewing");
+                        boolean profileFlag = true;
+                        while (profileFlag){
+                            System.out.println("Please select an option below:");
+                            System.out.println("1. View Member Profile");
+                            System.out.println("2. exit");
+                            System.out.println("Enter your choice: ");
+                            int profileChoice = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (profileChoice == 1){
+                                dbOps.getAvaliableMembers();
+                                
+                            }
+                            else if (profileChoice == 2){
+                                profileFlag = false;
+                            }
+                            else{
+                                System.out.println("Invalid choice");
+                            }
+                        }
+                    }    
+                    else if (trainerChoice == 3){
+                        trainerFlag = false;
+                    }
+                    else{
+                        System.out.println("Invalid choice");
+                    }   
                 }
             }
         //   else if (choice == 3){

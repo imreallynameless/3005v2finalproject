@@ -567,7 +567,9 @@ public class DatabaseOperations {
         return valid;
     }
 
-
+    public void viewTrainerSchedule(int trainer_id){
+        
+    }
 
     // ----------------- Administrators -----------------
 }
