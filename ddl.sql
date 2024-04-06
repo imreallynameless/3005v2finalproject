@@ -1,8 +1,9 @@
 CREATE TABLE members
     (
         member_id SERIAL PRIMARY KEY,
+        member_email VARCHAR(50) NOT NULL UNIQUE,
         first_name VARCHAR(50) NOT NULL,
-        last_name VARCHAR(50) NOT NULL 
+        last_name VARCHAR(50) NOT NULL
     );
 
 CREATE TABLE fitness_goals
@@ -30,13 +31,13 @@ CREATE TABLE health_statistics
     (
         member_id INTEGER REFERENCES members(member_id),
         weight INTEGER,
-        height INTEGER,
-        date DATE
+        height INTEGER
     );
 
 CREATE TABLE trainers
     (
         trainer_id SERIAL PRIMARY KEY,
+        trainer_email VARCHAR(50) NOT NULL UNIQUE,
         first_name VARCHAR(50) NOT NULL,
         last_name VARCHAR(50) NOT NULL
     );
@@ -44,6 +45,7 @@ CREATE TABLE trainers
 CREATE TABLE administrators
     (
         admin_id SERIAL PRIMARY KEY,
+        admin_email VARCHAR(50) NOT NULL UNIQUE,
         first_name VARCHAR(50) NOT NULL,
         last_name VARCHAR(50) NOT NULL
     );
