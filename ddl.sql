@@ -2,8 +2,10 @@ CREATE TABLE members
     (
         member_id SERIAL PRIMARY KEY,
         member_email VARCHAR(50) NOT NULL UNIQUE,
+        member_password VARCHAR(50) NOT NULL,
         first_name VARCHAR(50) NOT NULL,
-        last_name VARCHAR(50) NOT NULL
+        last_name VARCHAR(50) NOT NULL,
+        outstanding_balance INTEGER NOT NULL DEFAULT 0
     );
 
 CREATE TABLE fitness_goals
@@ -38,14 +40,17 @@ CREATE TABLE trainers
     (
         trainer_id SERIAL PRIMARY KEY,
         trainer_email VARCHAR(50) NOT NULL UNIQUE,
+        trainer_password VARCHAR(50) NOT NULL,
         first_name VARCHAR(50) NOT NULL,
-        last_name VARCHAR(50) NOT NULL
+        last_name VARCHAR(50) NOT NULL,
+        avaliable BOOLEAN NOT NULL
     );
 
 CREATE TABLE administrators
     (
         admin_id SERIAL PRIMARY KEY,
         admin_email VARCHAR(50) NOT NULL UNIQUE,
+        admin_password VARCHAR(50) NOT NULL,
         first_name VARCHAR(50) NOT NULL,
         last_name VARCHAR(50) NOT NULL
     );
@@ -53,7 +58,6 @@ CREATE TABLE administrators
 CREATE TABLE group_classes
     (
         class_id SERIAL PRIMARY KEY,
-        trainer_id INTEGER REFERENCES trainers(trainer_id) NOT NULL,
         class_name VARCHAR(50) NOT NULL,
         class_time TIMESTAMP NOT NULL
     );
@@ -83,6 +87,7 @@ CREATE TABLE equipment
 CREATE TABLE room
     (
         room_id SERIAL PRIMARY KEY,
+        member_id INTEGER REFERENCES members(member_id),
         room_name VARCHAR(50) NOT NULL,
         room_time TIMESTAMP NOT NULL
     );
