@@ -46,6 +46,12 @@ CREATE TABLE trainers
         avaliable BOOLEAN NOT NULL
     );
 
+CREATE TABLE trainer_classes (
+        trainer_id INTEGER REFERENCES trainers(trainer_id),
+        class_id INTEGER REFERENCES group_classes(class_id),
+        PRIMARY KEY (trainer_id, class_id)
+    );
+
 CREATE TABLE administrators
     (
         admin_id SERIAL PRIMARY KEY,
@@ -73,7 +79,7 @@ CREATE TABLE personal_training
     (
         training_id SERIAL PRIMARY KEY,
         member_id INTEGER REFERENCES members(member_id) NOT NULL,
-        trainer_id INTEGER REFERENCES trainers(trainer_id) NOT NULL,
+        trainer_id INTEGER REFERENCES trainers(trainer_id) DEFAULT NULL,
         training_time TIMESTAMP NOT NULL
     );
 

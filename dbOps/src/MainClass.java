@@ -202,13 +202,11 @@ public class MainClass {
                                 }
 
                                 else if (scheduleChoice == 2){
-                                    dbOps.getAvaliableTrainers();
-                                    System.out.println("Enter trainer id: ");
-                                    int trainer_id = scanner.nextInt();
+                                    dbOps.getAvailableSessions();
+                                    System.out.println("Enter session id: ");
+                                    int session_id = scanner.nextInt();
                                     scanner.nextLine();
-                                    System.out.println("Enter session time (in format yyyy-MM-dd HH:mm:ss): ");
-                                    String session_time = scanner.nextLine();
-                                    dbOps.schedulePersonalTraining(id, trainer_id, session_time);
+                                    dbOps.registerForSession(id, session_id);
                                 }
 
                                 else if (scheduleChoice == 3){
@@ -319,15 +317,10 @@ public class MainClass {
                             if (scheduleChoice == 1){
                                 dbOps.viewTrainerSchedule(id);
                             }
-
                             else if (scheduleChoice == 2){
-                                dbOps.getAvaliableMembers();
-                                System.out.println("Enter member id: ");
-                                int member_id = scanner.nextInt();
-                                scanner.nextLine();
                                 System.out.println("Enter session time (in format yyyy-MM-dd HH:mm:ss): ");
                                 String session_time = scanner.nextLine();
-                                dbOps.schedulePersonalTraining(member_id, id, session_time);
+                                dbOps.schedulePersonalTraining (id, session_time);
                             }
 
                             else if (scheduleChoice == 3){

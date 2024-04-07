@@ -377,24 +377,15 @@ public class DatabaseOperations {
         }
     }
 
-    public void schedulePersonalTraining(int member_id, int trainer_id, String training_time) {
-        String SQL = "INSERT INTO personal_training(member_id, trainer_id, training_time) VALUES(?,?,?)";
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Timestamp session_time;
-        try {
-            session_time = new Timestamp(dateFormat.parse(training_time).getTime());
-        } catch (ParseException e) {
-            System.out.println("Invalid date format. Please enter the date in the format yyyy-MM-dd HH:mm:ss");
-            return; // Exit the method if the date format is invalid
-        }
+    public void registerForSession(int member_id, int training_id) {
+        String SQL = "UPDATE personal_training SET member_id = ? WHERE training_id = ?";
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setInt(1, member_id);
-            pstmt.setInt(2, trainer_id);
-            pstmt.setTimestamp(3, session_time);
+            pstmt.setInt(2, training_id);
             pstmt.executeUpdate();
-            System.out.println("Personal training session scheduled successfully!");
+            System.out.println("Session registered successfully!");
 
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
@@ -435,6 +426,33 @@ public class DatabaseOperations {
 
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
+        }
+    }
+
+    public void getAvailableSessions(){
+        String SQL = "SELECT pt.training_id, pt.training_time, t.first_name, t.last_name " +
+                    "FROM personal_training pt " +
+                    "INNER JOIN trainers t ON pt.trainer_id = t.trainer_id " +
+                    "WHERE pt.member_id IS NULL";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+            ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                int training_id = rs.getInt("training_id");
+                Timestamp training_time = rs.getTimestamp("training_time");
+                String trainer_first_name = rs.getString("first_name");
+                String trainer_last_name = rs.getString("last_name");
+                System.out.println("Training ID: " + training_id);
+                System.out.println("Training Time: " + training_time);
+                System.out.println("Trainer: " + trainer_first_name + " " + trainer_last_name);
+            }
+
+            System.out.println("Available sessions retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -568,8 +586,33 @@ public class DatabaseOperations {
     }
 
     public void viewTrainerSchedule(int trainer_id){
-        
+        String SQL = ""
     }
+
+    public void schedulePersonalTraining(int trainer_id, String training_time) {
+        String SQL = "INSERT INTO personal_training(NULL, trainer_id, training_time) VALUES(?,?)";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Timestamp session_time;
+        try {
+            session_time = new Timestamp(dateFormat.parse(training_time).getTime());
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please enter the date in the format yyyy-MM-dd HH:mm:ss");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {;
+            pstmt.setInt(1, trainer_id);
+            pstmt.setTimestamp(2, session_time);
+            pstmt.executeUpdate();
+            System.out.println("Personal training session scheduled successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+
 
     // ----------------- Administrators -----------------
 }
