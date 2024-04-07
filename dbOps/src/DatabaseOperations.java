@@ -586,7 +586,61 @@ public class DatabaseOperations {
     }
 
     public void viewTrainerSchedule(int trainer_id){
-        String SQL = ""
+        String SQL = "SELECT pt.training_id, pt.training_time, m.first_name, m.last_name " +
+                     "FROM personal_training pt " +
+                     "INNER JOIN members m ON pt.member_id = m.member_id " +
+                     "WHERE pt.trainer_id = ?";
+        
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+
+            pstmt.setInt(1, trainer_id);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                int training_id = rs.getInt("training_id");
+                Timestamp training_time = rs.getTimestamp("training_time");
+                String member_first_name = rs.getString("first_name");
+                String member_last_name = rs.getString("last_name");
+
+                System.out.println("Training ID: " + training_id);
+                System.out.println("Training Time: " + training_time);
+                System.out.println("Member: " + member_first_name + " " + member_last_name);
+                System.out.println();
+            }
+
+            System.out.println("Training sessions retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        
+        }
+        SQL = "SELECT gc.class_id, gc.class_name, gc.class_time " +
+              "FROM group_classes gc " +
+              "WHERE gc.trainer_id = ?";
+        
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+
+            pstmt.setInt(1, trainer_id);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                int class_id = rs.getInt("class_id");
+                String class_name = rs.getString("class_name");
+                Time class_time = rs.getTime("class_time");
+
+                System.out.println("Class ID: " + class_id);
+                System.out.println("Class Name: " + class_name);
+                System.out.println("Class Time: " + class_time);
+                System.out.println();
+            }
+
+            System.out.println("Classes retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void schedulePersonalTraining(int trainer_id, String training_time) {
@@ -612,8 +666,294 @@ public class DatabaseOperations {
         }
     }
 
+    public void viewMemberProfile(String last_name, String first_name){
+        String SQL = "SELECT * FROM members WHERE last_name = ? AND first_name = ?";
 
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+
+            pstmt.setString(1, last_name);
+            pstmt.setString(2, first_name);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                int member_id = rs.getInt("member_id");
+                String member_email = rs.getString("member_email");
+
+                System.out.println("Member ID: " + member_id);
+                System.out.println("Member Email: " + member_email);
+                System.out.println();
+            }
+
+            System.out.println("Member retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 
     // ----------------- Administrators -----------------
+
+    public int getAdminByEmail(String email){
+        
+        String SQL = "SELECT * FROM administrators WHERE admin_email = ?";
+        int adminId = 0;
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+
+            pstmt.setString(1, email);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                adminId = rs.getInt("admin_id");
+                System.out.println("Admin ID: " + adminId);
+                System.out.println("Admin retrieved successfully!");
+                return adminId;
+            }
+            if (adminId == 0){
+                System.out.println("Admin not found!");
+                return adminId;
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return adminId;
+    }
+
+    public boolean adminCheckPassword(int admin_id, String password){
+        String SQL = "SELECT * FROM administrators WHERE admin_id = ? AND password = ?";
+        boolean valid = false;
+
+        try (Connection conn = DriverManager.getConnection(url, user, this.password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+
+            pstmt.setInt(1, admin_id);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                valid = true;
+                System.out.println("Password is correct!");
+                return valid;
+            }
+            if (!valid){
+                System.out.println("Password is incorrect!");
+                return valid;
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return valid;
+    }
+
+    public void viewRoomBookings(){
+        String SQL = "SELECT * FROM room_bookings";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+            ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                int booking_id = rs.getInt("booking_id");
+                int room_id = rs.getInt("room_id");
+                Timestamp booking_time = rs.getTimestamp("booking_time");
+
+                System.out.println("Booking ID: " + booking_id);
+                System.out.println("Room ID: " + room_id);
+                System.out.println("Booking Time: " + booking_time);
+                System.out.println();
+            }
+
+            System.out.println("Room bookings retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void bookRoom(int room_id, int member_id, String booking_time){
+        String SQL = "INSERT INTO room_bookings(room_id, member_id, booking_time) VALUES(?,?,?)";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Timestamp bTime;
+        try {
+            bTime = new Timestamp(dateFormat.parse(booking_time).getTime());
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please enter the date in the format yyyy-MM-dd HH:mm:ss");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, room_id);
+            pstmt.setInt(2, member_id);
+            pstmt.setTimestamp(3, bTime);
+            pstmt.executeUpdate();
+            System.out.println("Room booked successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+    
+    public void viewAllEquipment(){
+        String SQL = "SELECT * FROM equipment";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+            ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                int equipment_id = rs.getInt("equipment_id");
+                String equipment_name = rs.getString("equipment_name");
+                boolean equipment_broken = rs.getBoolean("equipment_broken");
+
+                System.out.println("Equipment ID: " + equipment_id);
+                System.out.println("Equipment Name: " + equipment_name);
+                System.out.println("Equipment Broken: " + equipment_broken);
+                System.out.println();
+            }
+
+            System.out.println("Equipment retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void viewEquipmentMaintenance(){
+        String SQL = "SELECT * FROM equipment WHERE equipment_broken = TRUE";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+            ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                int maintenance_id = rs.getInt("maintenance_id");
+                int equipment_id = rs.getInt("equipment_id");
+                Timestamp maintenance_time = rs.getTimestamp("maintenance_time");
+
+                System.out.println("Maintenance ID: " + maintenance_id);
+                System.out.println("Equipment ID: " + equipment_id);
+                System.out.println("Maintenance Time: " + maintenance_time);
+                System.out.println();
+            }
+
+            System.out.println("Equipment maintenance retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public void scheduleEquipmentMaintenance(int equipment_id, String maintenance_time){
+        String SQL = "UPDATE equipment SET equipment_broken = TRUE WHERE equipment_id = ?";
+        String SQL2 = "UPDATE equipment SET maintenance_time = ? WHERE equipment_id = ?";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Timestamp mTime;
+        try {
+            mTime = new Timestamp(dateFormat.parse(maintenance_time).getTime());
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please enter the date in the format yyyy-MM-dd HH:mm:ss");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL2)) {
+            pstmt.setTimestamp(1, mTime);
+            pstmt.setInt(2, equipment_id);
+            pstmt.executeUpdate();
+            System.out.println("Maintenance time updated successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, equipment_id);
+            pstmt.executeUpdate();
+            System.out.println("Equipment maintenance scheduled successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+
+    }
+
+    public void viewClasses(){
+        String SQL = "SELECT * FROM group_classes";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+            ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                int class_id = rs.getInt("class_id");
+                String class_name = rs.getString("class_name");
+                Time class_time = rs.getTime("class_time");
+
+                System.out.println("Class ID: " + class_id);
+                System.out.println("Class Name: " + class_name);
+                System.out.println("Class Time: " + class_time);
+                System.out.println();
+            }
+
+            System.out.println("Classes retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void updateClassSchedule(int class_id, String schedule_time){
+        String SQL = "UPDATE group_classes SET class_time = ? WHERE class_id = ?";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        Time cTime;
+        try {
+            cTime = new Time(dateFormat.parse(schedule_time).getTime());
+        } catch (ParseException e) {
+            System.out.println("Invalid time format. Please enter the time in the format HH:mm:ss");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setTime(1, cTime);
+            pstmt.setInt(2, class_id);
+            pstmt.executeUpdate();
+            System.out.println("Class schedule updated successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+    
+    public void viewBalances(){
+        String SQL = "SELECT * FROM members WHERE outstanding_balance > 0";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+            ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                int member_id = rs.getInt("member_id");
+                int outstanding_balance = rs.getInt("outstanding_balance");
+
+                System.out.println("Member ID: " + member_id);
+                System.out.println("Outstanding Balance: " + outstanding_balance);
+                System.out.println();
+            }
+
+            System.out.println("Balances retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }   
+    }
+
+    
 }
 

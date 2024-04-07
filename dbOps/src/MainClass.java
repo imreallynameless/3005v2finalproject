@@ -306,10 +306,9 @@ public class MainClass {
                             System.out.println("Please select an option below:");
                             System.out.println("1. View Schedule");
                             System.out.println("2. Set Availability");
-                            System.out.println("3. Schedule Personal Training Session");
-                            System.out.println("4. Reschedule Personal Training Session");
-                            System.out.println("5. Cancel Personal Training Session");
-                            System.out.println("6. exit");
+                            System.out.println("3. Reschedule Personal Training Session");
+                            System.out.println("4. Cancel Personal Training Session");
+                            System.out.println("5. exit");
                             System.out.println("Enter your choice: ");
                             int scheduleChoice = scanner.nextInt();
                             scanner.nextLine();
@@ -318,7 +317,7 @@ public class MainClass {
                                 dbOps.viewTrainerSchedule(id);
                             }
                             else if (scheduleChoice == 2){
-                                System.out.println("Enter session time (in format yyyy-MM-dd HH:mm:ss): ");
+                                System.out.println("Enter times of which you are available (in format yyyy-MM-dd HH:mm:ss): ");
                                 String session_time = scanner.nextLine();
                                 dbOps.schedulePersonalTraining (id, session_time);
                             }
@@ -348,6 +347,7 @@ public class MainClass {
                             }
                         }
                     }
+
                     else if (trainerChoice == 2){
                         System.out.println("Welcome to the Member Profile Viewing");
                         boolean profileFlag = true;
@@ -360,8 +360,11 @@ public class MainClass {
                             scanner.nextLine();
 
                             if (profileChoice == 1){
-                                dbOps.getAvaliableMembers();
-                                
+                                System.out.println("Enter last name of member: ");
+                                String last_name = scanner.nextLine();
+                                System.out.println("Enter first name of member: ");
+                                String first_name = scanner.nextLine();
+                                dbOps.viewMemberProfile(last_name, first_name);
                             }
                             else if (profileChoice == 2){
                                 profileFlag = false;
@@ -379,25 +382,198 @@ public class MainClass {
                     }   
                 }
             }
-        //   else if (choice == 3){
-        //       System.out.println("Enter student id: ");
-        //       int student_id = scanner.nextInt();
-        //       scanner.nextLine();
-        //       System.out.println("Enter new email: ");
-        //       String new_email = scanner.nextLine();
-        //       dbOps.updateStudentEmail(student_id, new_email);
-        //   }
-        //   else if (choice == 4){
-        //       System.out.println("Enter student id: ");
-        //       int student_id = scanner.nextInt();
-        //       dbOps.deleteStudent(student_id);
-        //   }
-          else if (choice == 4){
-              flag = false;
-          }
-          else{
-              System.out.println("Invalid choice");
-          }
+            else if (choice == 3){
+                Boolean logInFlag = true;
+                Boolean adminFlag = true;
+                int id = 0;
+                while (logInFlag){
+                    System.out.println("Welcome to the Administrator Portal");
+                    System.out.println("Please select an option below:");
+                    System.out.println("1. Log in");
+                    System.out.println("2. exit");
+                    System.out.println("Enter your choice: ");
+                    int logInChoice = scanner.nextInt();
+                    scanner.nextLine();
+                    if (logInChoice == 1){
+                        System.out.println("Enter your email: ");
+                        String email = scanner.nextLine();
+                        id = dbOps.getAdminByEmail(email);
+                        if (id != 0){
+                            System.out.println("Enter your password: ");
+                            String password = scanner.nextLine();
+                                if (dbOps.adminCheckPassword(id, password)){
+                                    logInFlag = false;
+                                }
+                                else{
+                                }
+                        }
+                        else {
+                            System.out.println("Admin not found!");
+                        }
+                    }
+                    else if (logInChoice == 2){
+                        logInFlag = false;
+                        adminFlag = false;
+                    }
+                    else{
+                        System.out.println("Invalid choice");
+                    }
+                }
+    
+                while (adminFlag){
+                    System.out.println("Welcome to the Administrator Portal");
+                    System.out.println("Please select an option below:");
+                    System.out.println("1. Room Booking Management");
+                    System.out.println("2. Equipment Maintenance Management");
+                    System.out.println("3. Class Management");
+                    System.out.println("4. Payment Processing Management");
+                    System.out.println("5. exit");
+                    System.out.println("Enter your choice: ");
+                    int adminChoice = scanner.nextInt();
+                    scanner.nextLine();
+                    if (adminChoice == 1){
+                        System.out.println("Welcome to the Room Booking Management");
+                        boolean roomBookingFlag = true;
+                        while (roomBookingFlag){
+                            System.out.println("Please select an option below:");
+                            System.out.println("1. View Room Bookings");
+                            System.out.println("2. Book Room");
+                            System.out.println("3. exit");
+                            System.out.println("Enter your choice: ");
+                            int roomChoice = scanner.nextInt();
+                            scanner.nextLine();
+                            if (roomChoice == 1){
+                                dbOps.viewRoomBookings();
+                            }
+                            else if (roomChoice == 2){
+                                System.out.println("Enter room id: ");
+                                int room_id = scanner.nextInt();
+                                scanner.nextLine();
+                                System.out.println("Enter member id: ");
+                                int member_id = scanner.nextInt();
+                                scanner.nextLine();
+                                System.out.println("Enter session time (in format yyyy-MM-dd HH:mm:ss): ");
+                                String session_time = scanner.nextLine();
+                                dbOps.bookRoom(room_id, member_id, session_time);
+                            }
+                            else if (roomChoice == 3){
+                                roomBookingFlag = false;
+                            }
+                            else{
+                                System.out.println("Invalid choice");
+                            }
+                        }
+                    }
+                    else if (adminChoice == 2){
+                        System.out.println("Welcome to the Equipment Maintenance Management");
+                        boolean equipmentFlag = true;
+                        while (equipmentFlag){
+                            System.out.println("Please select an option below:");
+                            System.out.println("1. View Equipment Maintenance Schedule");
+                            System.out.println("2. Schedule Equipment Maintenance");
+                            System.out.println("3. exit");
+                            System.out.println("Enter your choice: ");
+                            int equipmentChoice = scanner.nextInt();
+                            scanner.nextLine();
+                            if (equipmentChoice == 1){
+                                dbOps.viewEquipmentMaintenance();
+                            }
+                            else if (equipmentChoice == 2){
+                                dbOps.viewAllEquipment();
+                                System.out.println("Enter equipment id: ");
+                                int equipment_id = scanner.nextInt();
+                                scanner.nextLine();
+                                System.out.println("Enter maintenance time (in format yyyy-MM-dd HH:mm:ss): ");
+                                String maintenance_time = scanner.nextLine();
+                                dbOps.scheduleEquipmentMaintenance(equipment_id, maintenance_time);
+                            }
+                            else if (equipmentChoice == 3){
+                                equipmentFlag = false;
+                            }
+                            else{
+                                System.out.println("Invalid choice");
+                            }
+                        }
+                    }
+                    else if (adminChoice == 3){
+                        System.out.println("Welcome to the Class Management");
+                        boolean classFlag = true;
+                        while (classFlag){
+                            System.out.println("Please select an option below:");
+                            System.out.println("1. View Classes");
+                            System.out.println("2. Update Class Schedule");
+                            System.out.println("3. exit");
+                            System.out.println("Enter your choice: ");
+                            int classChoice = scanner.nextInt();
+                            scanner.nextLine();
+                            if (classChoice == 1){
+                                dbOps.viewClasses();
+                            }
+                            else if (classChoice == 2){
+                                dbOps.viewClasses();
+                                System.out.println("Enter class id: ");
+                                int class_id = scanner.nextInt();
+                                scanner.nextLine();
+                                System.out.println("Enter new class time (in format yyyy-MM-dd HH:mm:ss): ");
+                                String class_time = scanner.nextLine();
+                                dbOps.updateClassSchedule(class_id, class_time);
+                            }
+                            else if (classChoice == 3){
+                                classFlag = false;
+                            }
+                            else{
+                                System.out.println("Invalid choice");
+                            }
+
+                        }
+                    }
+                    else if (adminChoice == 4){
+                        System.out.println("Welcome to the Payment Processing Management");
+                        boolean paymentFlag = true;
+                        while (paymentFlag){
+                            System.out.println("Please select an option below:");
+                            System.out.println("1. View Balances");
+                            System.out.println("2. Process Payment");
+                            System.out.println("3. exit");
+                            System.out.println("Enter your choice: ");
+                            int paymentChoice = scanner.nextInt();
+                            scanner.nextLine();
+                            if (paymentChoice == 1){
+                                dbOps.viewBalances();
+                            }
+                            else if (paymentChoice == 2){
+                                dbOps.viewBalances();
+                                System.out.println("Enter member email: ");
+                                String email = scanner.nextLine();
+                                int member_id = dbOps.getMemberByEmail(email);
+                                System.out.println("Enter amount to pay: ");
+                                int amount = scanner.nextInt();
+                                scanner.nextLine();
+                                dbOps.payBalance(member_id, amount);
+                            }
+                            else if (paymentChoice == 3){
+                                paymentFlag = false;
+                            }
+                            else{
+                                System.out.println("Invalid choice");
+                            }
+                        }
+                    }
+                    else if (adminChoice == 5){
+                        adminFlag = false;
+                    }
+                    else{
+                        System.out.println("Invalid choice");
+                    
+                    }
+                }
+            }
+            else if (choice == 4){
+                flag = false;
+            }
+            else{
+                System.out.println("Invalid choice");
+            }
       }
         scanner.close();
     }

@@ -87,7 +87,8 @@ CREATE TABLE equipment
     (
         equipment_id SERIAL PRIMARY KEY,
         equipment_name VARCHAR(50) NOT NULL,
-        equipment_status BOOLEAN
+        equipment_broken BOOLEAN,
+        maintenance_time TIMESTAMP DEFAULT NULL
     );
 
 CREATE TABLE room
