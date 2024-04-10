@@ -66,13 +66,11 @@ public class MainClass {
                         dbOps.addMember(first_name, last_name, email, password, weight, height);
                         id = dbOps.getMemberByEmail(email);
                         System.out.println("Register for a session to get started!");
-                        dbOps.getAvaliableTrainers();
-                        System.out.println("Enter trainer id: ");
-                        int trainer_id = scanner.nextInt();
+                        dbOps.getAvailableSessions();
+                        System.out.println("Enter session id: ");
+                        int session_id = scanner.nextInt();
                         scanner.nextLine();
-                        System.out.println("Enter session time (in format yyyy-MM-dd HH:mm:ss): ");
-                        String session_time = scanner.nextLine();
-                        dbOps.schedulePersonalTraining(id, trainer_id, session_time);
+                        dbOps.registerForSession(id, session_id);
                         System.out.println("Your outstanding balance is $5. Would you like to pay now? (y/n)");
                         String pay = scanner.nextLine();
                         if (pay.equals("y")){
@@ -138,9 +136,9 @@ public class MainClass {
                                     int weight = scanner.nextInt();
                                     scanner.nextLine();
                                     System.out.println("Enter new height in cm: ");
-                                    scanner.nextLine();
                                     int height = scanner.nextInt();
-                                    dbOps.updateHealthMetrics(id, weight, height);
+                                    scanner.nextLine();
+                                    dbOps.updateHealthStatistics(id, weight, height);
                                 }
                                 else if (profileChoice == 4){
                                     profileFlag = false;
@@ -211,7 +209,7 @@ public class MainClass {
 
                                 else if (scheduleChoice == 3){
                                     dbOps.viewSchedule(id);
-                                    System.out.println("Enter session id: ");
+                                    System.out.println("Enter Training id: ");
                                     int session_id = scanner.nextInt();
                                     scanner.nextLine();
                                     System.out.println("Enter new session time (in format yyyy-MM-dd HH:mm:ss): ");
@@ -232,7 +230,8 @@ public class MainClass {
                                     System.out.println("Enter class id: ");
                                     int class_id = scanner.nextInt();
                                     scanner.nextLine();
-                                    dbOps.registerForClass(id, class_id);
+                                    int trainer_id = dbOps.getTrainerForClass(class_id);
+                                    dbOps.registerForClass(id, class_id, trainer_id);
                                 }
                                 else if (scheduleChoice == 6){
                                     scheduleFlag = false;
@@ -334,10 +333,10 @@ public class MainClass {
 
                             else if (scheduleChoice == 4){
                                 dbOps.viewTrainerSchedule(id);
-                                System.out.println("Enter session id: ");
+                                System.out.println("Enter Training Session id: ");
                                 int session_id = scanner.nextInt();
                                 scanner.nextLine();
-                                dbOps.cancelPersonalTraining(session_id);
+                                dbOps.cancelSession(session_id);
                             }
                             else if (scheduleChoice == 5){
                                 scheduleFlag = false;
@@ -446,6 +445,7 @@ public class MainClass {
                                 dbOps.viewRoomBookings();
                             }
                             else if (roomChoice == 2){
+                                dbOps.viewRooms();
                                 System.out.println("Enter room id: ");
                                 int room_id = scanner.nextInt();
                                 scanner.nextLine();

@@ -46,12 +46,6 @@ CREATE TABLE trainers
         avaliable BOOLEAN NOT NULL
     );
 
-CREATE TABLE trainer_classes (
-        trainer_id INTEGER REFERENCES trainers(trainer_id),
-        class_id INTEGER REFERENCES group_classes(class_id),
-        PRIMARY KEY (trainer_id, class_id)
-    );
-
 CREATE TABLE administrators
     (
         admin_id SERIAL PRIMARY KEY,
@@ -71,15 +65,19 @@ CREATE TABLE group_classes
 CREATE TABLE class_members
     (
         class_id INTEGER REFERENCES group_classes(class_id),
-        member_id INTEGER REFERENCES members(member_id),
-        PRIMARY KEY (class_id, member_id)
+        member_id INTEGER,
+        trainer_id INTEGER,
+        PRIMARY KEY (class_id, member_id, trainer_id),
+        FOREIGN KEY (member_id) REFERENCES members(member_id),
+        FOREIGN KEY (trainer_id) REFERENCES trainers(trainer_id)
     );
+
 
 CREATE TABLE personal_training
     (
         training_id SERIAL PRIMARY KEY,
-        member_id INTEGER REFERENCES members(member_id) NOT NULL,
-        trainer_id INTEGER REFERENCES trainers(trainer_id) DEFAULT NULL,
+        member_id INTEGER REFERENCES members(member_id) DEFAULT NULL,
+        trainer_id INTEGER REFERENCES trainers(trainer_id) NOT NULL,
         training_time TIMESTAMP NOT NULL
     );
 
@@ -94,7 +92,13 @@ CREATE TABLE equipment
 CREATE TABLE room
     (
         room_id SERIAL PRIMARY KEY,
+        room_name VARCHAR(50) NOT NULL
+    );
+
+CREATE TABLE room_bookings
+    (
+        room_id INTEGER REFERENCES room(room_id),
         member_id INTEGER REFERENCES members(member_id),
-        room_name VARCHAR(50) NOT NULL,
-        room_time TIMESTAMP NOT NULL
+        booking_time TIMESTAMP NOT NULL,
+        PRIMARY KEY (room_id, member_id)
     );
