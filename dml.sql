@@ -19,6 +19,13 @@ VALUES
     (2, 'Strength Training', 'Work on upper body strength using dumbbells and barbells.'),
     (3, 'Yoga Routine', 'Practice various yoga poses for flexibility and relaxation.');
 
+-- Inserting into the fitness_achievements table
+INSERT INTO fitness_achievements(member_id, achievement_name, achievement_description)
+VALUES
+    (1, 'Ran 5K', 'Completed a 5K run in under 30 minutes.'),
+    (2, 'Deadlift PR', 'Achieved a personal record in deadlift of 200 pounds.'),
+    (3, 'Mastered Crow Pose', 'Able to hold Crow Pose for 30 seconds.');
+
 -- Inserting into the health_statistics table
 INSERT INTO health_statistics (member_id, weight, height) 
 VALUES 
