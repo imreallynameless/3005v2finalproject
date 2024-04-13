@@ -67,18 +67,13 @@ public class MainClass {
                         id = dbOps.getMemberByEmail(email);
                         System.out.println("Register for a session to get started!");
                         dbOps.getAvailableSessions();
-                        System.out.println("Enter session id: ");
+                        System.out.println("Enter session id (or 0 to skip booking a session): ");
                         int session_id = scanner.nextInt();
                         scanner.nextLine();
-                        dbOps.registerForSession(id, session_id);
-                        System.out.println("Your outstanding balance is $5. Would you like to pay now? (y/n)");
-                        String pay = scanner.nextLine();
-                        if (pay.equals("y")){
-                            System.out.println("How much would you like to pay: (in integer format)");
-                            int amount = scanner.nextInt();
-                            scanner.nextLine();
-                            dbOps.payBalance(id, amount);
+                        if (session_id != 0){
+                            dbOps.registerForSession(id, session_id);
                         }
+                        System.out.println("Your outstanding balance is $5. Please ask an admin to pay it off.");
                         logInFlag = false;
                     }
                     else if (logInChoice == 3){
@@ -108,7 +103,8 @@ public class MainClass {
                                 System.out.println("1. Update Personal Information");
                                 System.out.println("2. Update Fitness Goals");
                                 System.out.println("3. Update Health Metrics");
-                                System.out.println("4. exit");
+                                System.out.println("4. View Profile");
+                                System.out.println("5. exit");
                                 System.out.println("Enter your choice: ");
                                 int profileChoice = scanner.nextInt();
                                 scanner.nextLine();
@@ -140,7 +136,11 @@ public class MainClass {
                                     scanner.nextLine();
                                     dbOps.updateHealthStatistics(id, weight, height);
                                 }
+                                    
                                 else if (profileChoice == 4){
+                                        dbOps.viewMemberProfile(id);
+                                }
+                                else if (profileChoice == 5){
                                     profileFlag = false;
                                 }
                                 else{
@@ -190,7 +190,8 @@ public class MainClass {
                                 System.out.println("3. Reschedule Personal Training Session");
                                 System.out.println("4. Cancel Personal Training Session");
                                 System.out.println("5. Register for Group Classes");
-                                System.out.println("6. exit");
+                                System.out.println("6. Cancel Group Classes");
+                                System.out.println("7. exit");
                                 System.out.println("Enter your choice: ");
                                 int scheduleChoice = scanner.nextInt();
                                 scanner.nextLine();
@@ -230,10 +231,16 @@ public class MainClass {
                                     System.out.println("Enter class id: ");
                                     int class_id = scanner.nextInt();
                                     scanner.nextLine();
-                                    int trainer_id = dbOps.getTrainerForClass(class_id);
-                                    dbOps.registerForClass(id, class_id, trainer_id);
+                                    dbOps.registerForClass(id, class_id);
                                 }
                                 else if (scheduleChoice == 6){
+                                    dbOps.viewSchedule(id);
+                                    System.out.println("Enter class id: ");
+                                    int class_id = scanner.nextInt();
+                                    scanner.nextLine();
+                                    dbOps.cancelClass(id, class_id);
+                                }
+                                else if (scheduleChoice == 7){
                                     scheduleFlag = false;
                                 }
                                 else{
@@ -364,6 +371,12 @@ public class MainClass {
                                 System.out.println("Enter first name of member: ");
                                 String first_name = scanner.nextLine();
                                 dbOps.viewMemberProfile(last_name, first_name);
+                                System.out.println("Select member id to view profile (or 0 to exit): ");
+                                int member_id = scanner.nextInt();
+                                scanner.nextLine();
+                                if (member_id != 0){
+                                    dbOps.viewMemberProfile(member_id);
+                                }
                             }
                             else if (profileChoice == 2){
                                 profileFlag = false;
@@ -437,7 +450,9 @@ public class MainClass {
                             System.out.println("Please select an option below:");
                             System.out.println("1. View Room Bookings");
                             System.out.println("2. Book Room");
-                            System.out.println("3. exit");
+                            System.out.println("3. Reschedule Room Booking");
+                            System.out.println("4. Cancel Room Booking");
+                            System.out.println("5. exit");
                             System.out.println("Enter your choice: ");
                             int roomChoice = scanner.nextInt();
                             scanner.nextLine();
@@ -449,14 +464,29 @@ public class MainClass {
                                 System.out.println("Enter room id: ");
                                 int room_id = scanner.nextInt();
                                 scanner.nextLine();
-                                System.out.println("Enter member id: ");
-                                int member_id = scanner.nextInt();
-                                scanner.nextLine();
-                                System.out.println("Enter session time (in format yyyy-MM-dd HH:mm:ss): ");
-                                String session_time = scanner.nextLine();
-                                dbOps.bookRoom(room_id, member_id, session_time);
+                                System.out.println("Enter Event name: ");
+                                String event_name = scanner.nextLine();
+                                System.out.println("Enter Event time (in format yyyy-MM-dd HH:mm:ss): ");
+                                String booking_time = scanner.nextLine();
+                                dbOps.bookRoom(room_id, event_name, booking_time, id);
                             }
                             else if (roomChoice == 3){
+                                dbOps.viewRoomBookings();
+                                System.out.println("Enter booking id: ");
+                                int booking_id = scanner.nextInt();
+                                scanner.nextLine();
+                                System.out.println("Enter new booking time (in format yyyy-MM-dd HH:mm:ss): ");
+                                String new_booking_time = scanner.nextLine();
+                                dbOps.rescheduleRoomBooking(booking_id, new_booking_time);
+                            }
+                            else if (roomChoice == 4){
+                                dbOps.viewRoomBookings();
+                                System.out.println("Enter booking id: ");
+                                int booking_id = scanner.nextInt();
+                                scanner.nextLine();
+                                dbOps.cancelRoomBooking(booking_id);
+                            }
+                            else if (roomChoice == 5){
                                 roomBookingFlag = false;
                             }
                             else{
@@ -485,7 +515,7 @@ public class MainClass {
                                 scanner.nextLine();
                                 System.out.println("Enter maintenance time (in format yyyy-MM-dd HH:mm:ss): ");
                                 String maintenance_time = scanner.nextLine();
-                                dbOps.scheduleEquipmentMaintenance(equipment_id, maintenance_time);
+                                dbOps.scheduleEquipmentMaintenance(equipment_id, maintenance_time, id);
                             }
                             else if (equipmentChoice == 3){
                                 equipmentFlag = false;
@@ -502,7 +532,9 @@ public class MainClass {
                             System.out.println("Please select an option below:");
                             System.out.println("1. View Classes");
                             System.out.println("2. Update Class Schedule");
-                            System.out.println("3. exit");
+                            System.out.println("3. Schedule New Class");
+                            System.out.println("4. Cancel Class");
+                            System.out.println("5. exit");
                             System.out.println("Enter your choice: ");
                             int classChoice = scanner.nextInt();
                             scanner.nextLine();
@@ -519,6 +551,20 @@ public class MainClass {
                                 dbOps.updateClassSchedule(class_id, class_time);
                             }
                             else if (classChoice == 3){
+                                System.out.println("Enter class name: ");
+                                String class_name = scanner.nextLine();
+                                System.out.println("Enter class time (in format yyyy-MM-dd HH:mm:ss): ");
+                                String class_time = scanner.nextLine();
+                                dbOps.scheduleClass(id, class_name, class_time);
+                            }
+                            else if (classChoice == 4){
+                                dbOps.viewClasses();
+                                System.out.println("Enter class id: ");
+                                int class_id = scanner.nextInt();
+                                scanner.nextLine();
+                                dbOps.cancelClass(class_id);
+                            }
+                            else if (classChoice == 5){
                                 classFlag = false;
                             }
                             else{
@@ -534,7 +580,9 @@ public class MainClass {
                             System.out.println("Please select an option below:");
                             System.out.println("1. View Balances");
                             System.out.println("2. Process Payment");
-                            System.out.println("3. exit");
+                            System.out.println("3. Bill Member");
+                            System.out.println("4. View Transactions");
+                            System.out.println("5. exit");
                             System.out.println("Enter your choice: ");
                             int paymentChoice = scanner.nextInt();
                             scanner.nextLine();
@@ -549,9 +597,22 @@ public class MainClass {
                                 System.out.println("Enter amount to pay: ");
                                 int amount = scanner.nextInt();
                                 scanner.nextLine();
-                                dbOps.payBalance(member_id, amount);
+                                dbOps.payBalance(id, member_id, amount);
                             }
                             else if (paymentChoice == 3){
+                                dbOps.viewBalances();
+                                System.out.println("Enter member email: ");
+                                String email = scanner.nextLine();
+                                int member_id = dbOps.getMemberByEmail(email);
+                                System.out.println("Enter amount to bill: ");
+                                int amount = scanner.nextInt();
+                                scanner.nextLine();
+                                dbOps.billMember(id, member_id, amount);
+                            }
+                            else if (paymentChoice == 4){
+                                dbOps.viewTransactions();
+                            }
+                            else if (paymentChoice == 5){
                                 paymentFlag = false;
                             }
                             else{

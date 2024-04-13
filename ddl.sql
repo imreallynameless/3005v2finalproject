@@ -54,23 +54,29 @@ CREATE TABLE administrators
         last_name VARCHAR(50) NOT NULL
     );
 
+CREATE TABLE bills
+    (
+        admin_id INTEGER REFERENCES administrators(admin_id),
+        member_id INTEGER REFERENCES members(member_id),
+        bill_amount INTEGER NOT NULL,
+        bill_time TIMESTAMP NOT NULL,
+        PRIMARY KEY (admin_id, member_id)
+    )
+ 
 CREATE TABLE group_classes
     (
         class_id SERIAL PRIMARY KEY,
+        admin_id INTEGER REFERENCES administrators(admin_id),
         class_name VARCHAR(50) NOT NULL,
         class_time TIMESTAMP NOT NULL
     );
 
-CREATE TABLE class_members
+CREATE TABLE registers
     (
         class_id INTEGER REFERENCES group_classes(class_id),
-        member_id INTEGER,
-        trainer_id INTEGER,
-        PRIMARY KEY (class_id, member_id, trainer_id),
-        FOREIGN KEY (member_id) REFERENCES members(member_id),
-        FOREIGN KEY (trainer_id) REFERENCES trainers(trainer_id)
+        member_id INTEGER REFERENCES members(member_id),
+        PRIMARY KEY (class_id, member_id)
     );
-
 
 CREATE TABLE personal_training
     (
@@ -84,20 +90,31 @@ CREATE TABLE equipment
     (
         equipment_id SERIAL PRIMARY KEY,
         equipment_name VARCHAR(50) NOT NULL,
-        equipment_broken BOOLEAN,
-        maintenance_time TIMESTAMP DEFAULT NULL
+        equipment_broken BOOLEAN
+    );
+
+CREATE TABLE maintains
+    (
+        equipment_id INTEGER REFERENCES equipment(equipment_id),
+        admin_id INTEGER REFERENCES administrators(admin_id),
+        maintenance_time TIMESTAMP DEFAULT NULL,
+        PRIMARY KEY (equipment_id, admin_id)    
     );
 
 CREATE TABLE room
     (
         room_id SERIAL PRIMARY KEY,
-        room_name VARCHAR(50) NOT NULL
+        room_name VARCHAR(50) NOT NULL,
+        room_capacity INTEGER NOT NULL
     );
 
-CREATE TABLE room_bookings
+CREATE TABLE books
     (
         room_id INTEGER REFERENCES room(room_id),
-        member_id INTEGER REFERENCES members(member_id),
+        admin_id INTEGER REFERENCES administrators(admin_id),
         booking_time TIMESTAMP NOT NULL,
-        PRIMARY KEY (room_id, member_id)
+        booking_event VARCHAR(50) NOT NULL,
+        PRIMARY KEY (room_id, admin_id)
+
     );
+

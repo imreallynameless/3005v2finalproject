@@ -149,6 +149,77 @@ public class DatabaseOperations {
         }
     }
 
+    public void viewMemberProfile(int member_id){
+        String SQL = "SELECT * FROM members WHERE member_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+
+            pstmt.setInt(1, member_id);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                String first_name = rs.getString("first_name");
+                String last_name = rs.getString("last_name");
+                String member_email = rs.getString("member_email");
+
+                System.out.println("First Name: " + first_name);
+                System.out.println("Last Name: " + last_name);
+                System.out.println("Email: " + member_email);
+                System.out.println();
+            }
+
+            System.out.println("Member retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        SQL = "SELECT * FROM fitness_goals WHERE member_id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+
+            pstmt.setInt(1, member_id);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                String goal_name = rs.getString("goal_name");
+                String goal_description = rs.getString("goal_description");
+
+                System.out.println("Goal Name: " + goal_name);
+                System.out.println("Goal Description: " + goal_description);
+                System.out.println();
+            }
+
+            System.out.println("Fitness goals retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        SQL = "SELECT * FROM health_statistics WHERE member_id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+
+            pstmt.setInt(1, member_id);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                int weight = rs.getInt("weight");
+                int height = rs.getInt("height");
+
+                System.out.println("Weight: " + weight);
+                System.out.println("Height: " + height);
+                System.out.println();
+            }
+
+            System.out.println("Health metrics retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
     public void addMember(String first_name, String last_name, String member_email, String member_password, int weight, int height) {
         String SQL = "INSERT INTO members(member_email, member_password, first_name, last_name, outstanding_balance) VALUES(?,?,?,?,?)";
     
@@ -208,23 +279,7 @@ public class DatabaseOperations {
             System.out.println(ex.getMessage());
         }
     }
-    
 
-    public void payBalance(int member_id, int amount) {
-        String SQL = "UPDATE members SET outstanding_balance = outstanding_balance - ? WHERE member_id = ?";
-
-        try (Connection conn = DriverManager.getConnection(url, user, password);
-            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
-
-            pstmt.setInt(1, amount);
-            pstmt.setInt(2, member_id);
-            pstmt.executeUpdate();
-            System.out.println("Balance paid successfully!");
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
 
     public void viewExerciseRoutines(int member_id) {
         String SQL = "SELECT * FROM exercise_routines WHERE member_id = ?";
@@ -438,36 +493,6 @@ public class DatabaseOperations {
         }
     }
 
-    public void getAvaliableTrainers(){
-        String SQL = "SELECT * FROM trainers WHERE available = true";
-
-        try (Connection conn = DriverManager.getConnection(url, user, password);
-            PreparedStatement pstmt = conn.prepareStatement(SQL);
-            ResultSet rs = pstmt.executeQuery()) {
-
-            if (!rs.next()){
-                System.out.println("No trainers avaliable at the moment!");
-                return;
-            }
-            
-            while (rs.next()) {
-                int trainer_id = rs.getInt("trainer_id");
-                String first_name = rs.getString("first_name");
-                String last_name = rs.getString("last_name");
-
-                System.out.println("Trainer ID: " + trainer_id);
-                System.out.println("First Name: " + first_name);
-                System.out.println("Last Name: " + last_name);
-                System.out.println();
-            }
-
-            System.out.println("Avaliable Trainers retrieved successfully!");
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
-
     public void getAllClasses(){
         String SQL = "SELECT * FROM group_classes";
 
@@ -493,41 +518,14 @@ public class DatabaseOperations {
         }
     }
 
-    public int getTrainerForClass(int class_id){
-        String SQL = "SELECT trainer_id FROM class_members WHERE class_id = ?";
-        int trainer_id = 0;
-
-        try (Connection conn = DriverManager.getConnection(url, user, password);
-            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
-
-            pstmt.setInt(1, class_id);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                trainer_id = rs.getInt("trainer_id");
-                System.out.println("Trainer ID: " + trainer_id);
-                System.out.println("Trainer retrieved successfully!");
-                return trainer_id;
-            }
-            if (trainer_id == 0){
-                System.out.println("Trainer not found!");
-                return trainer_id;
-            }
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-        return trainer_id;
-    }
-    public void registerForClass(int member_id, int class_id, int trainer_id) {
+    public void registerForClass(int member_id, int class_id) {
         
-        String SQL = "INSERT INTO class_members(member_id, class_id, trainer_id) VALUES(?,?,?)";
+        String SQL = "INSERT INTO class_members(member_id, class_id) VALUES(?,?)";
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setInt(1, member_id);
             pstmt.setInt(2, class_id);
-            pstmt.setInt(3, trainer_id);
             pstmt.executeUpdate();
             System.out.println("Class Registered successfully!");
 
@@ -536,7 +534,20 @@ public class DatabaseOperations {
         }
     }
 
+    public void cancelClass(int member_id, int class_id) {
+        String SQL = "DELETE FROM class_members WHERE member_id = ? AND class_id = ?";
 
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, member_id);
+            pstmt.setInt(2, class_id);
+            pstmt.executeUpdate();
+            System.out.println("Class cancelled successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
 
     // ----------------- Trainers -----------------
 
@@ -625,33 +636,6 @@ public class DatabaseOperations {
             ex.printStackTrace();
         }
 
-        SQL = "SELECT DISTINCT gc.class_id, gc.class_name, gc.class_time " +
-              "FROM group_classes gc " +
-              "INNER JOIN class_members cm ON gc.class_id = cm.class_id " +
-              "WHERE cm.trainer_id = ?";
-        
-        try (Connection conn = DriverManager.getConnection(url, user, password);
-            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
-
-            pstmt.setInt(1, trainer_id);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                int class_id = rs.getInt("class_id");
-                String class_name = rs.getString("class_name");
-                Time class_time = rs.getTime("class_time");
-
-                System.out.println("Class ID: " + class_id);
-                System.out.println("Class Name: " + class_name);
-                System.out.println("Class Time: " + class_time);
-                System.out.println();
-            }
-
-            System.out.println("Classes retrieved successfully!");
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
     }
 
     public void schedulePersonalTraining(int trainer_id, String training_time) {
@@ -694,7 +678,8 @@ public class DatabaseOperations {
 
     public void viewMemberProfile(String last_name, String first_name){
         String SQL = "SELECT * FROM members WHERE last_name = ? AND first_name = ?";
-
+        String member = "Member not found!";
+        
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
 
@@ -709,9 +694,9 @@ public class DatabaseOperations {
                 System.out.println("Member ID: " + member_id);
                 System.out.println("Member Email: " + member_email);
                 System.out.println();
+                member = "Member found!";
             }
-
-            System.out.println("Member retrieved successfully!");
+            System.out.println(member);
 
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -776,17 +761,27 @@ public class DatabaseOperations {
     }
 
     public void viewRoomBookings(){
-        String SQL = "SELECT * FROM room_bookings";
-
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        String SQL = "SELECT b.booking_event, b.booking_time, a.admin_id, r.room_name, r.room_capacity " +
+                      "FROM books b "+
+                      "INNER JOIN room r ON b.room_id = r.room_id " +
+                      "INNER JOIN administrators a ON b.admin_id = ? ";
+        try {
+            Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL);
-            ResultSet rs = pstmt.executeQuery()) {
+            ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                int room_id = rs.getInt("room_id");
+                String booking_event = rs.getString("booking_event");
+                Timestamp booking_time = rs.getTimestamp("booking_time");
+                int admin_id = rs.getInt("admin_id");
                 String room_name = rs.getString("room_name");
-                System.out.println("Room ID: " + room_id);
+                int room_capacity = rs.getInt("room_capacity");
+
+                System.out.println("Booking Event: " + booking_event);
+                System.out.println("Booking Time: " + booking_time);
+                System.out.println("Admin ID: " + admin_id);
                 System.out.println("Room Name: " + room_name);
+                System.out.println("Room Capacity: " + room_capacity);
                 System.out.println();
             }
 
@@ -797,8 +792,8 @@ public class DatabaseOperations {
         }
     }
 
-    public void bookRoom(int room_id, int member_id, String booking_time){
-        String SQL = "INSERT INTO room_bookings(room_id, member_id, booking_time) VALUES(?,?,?)";
+    public void bookRoom(int room_id, String event_name, String booking_time, int admin_id){
+        String SQL = "INSERT INTO books(room_id, booking_event, booking_time, admin_id) VALUES(?,?,?,?)";
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Timestamp bTime;
         try {
@@ -811,8 +806,9 @@ public class DatabaseOperations {
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setInt(1, room_id);
-            pstmt.setInt(2, member_id);
+            pstmt.setString(2, event_name);
             pstmt.setTimestamp(3, bTime);
+            pstmt.setInt(4, admin_id);
             pstmt.executeUpdate();
             System.out.println("Room booked successfully!");
 
@@ -822,7 +818,7 @@ public class DatabaseOperations {
     }
     
     public void viewRooms(){
-        String SQL = "SELECT * FROM rooms";
+        String SQL = "SELECT * FROM room";
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL);
@@ -831,15 +827,54 @@ public class DatabaseOperations {
             while (rs.next()) {
                 int room_id = rs.getInt("room_id");
                 String room_name = rs.getString("room_name");
+                int room_capacity = rs.getInt("room_capacity");
                 System.out.println("Room ID: " + room_id);
                 System.out.println("Room Name: " + room_name);
+                System.out.println("Room Capacity: " + room_capacity);
                 System.out.println();
-            }
+            } 
 
             System.out.println("Rooms retrieved successfully!");
 
         } catch (SQLException ex) {
             ex.printStackTrace();
+        }
+    }
+
+    public void rescheduleRoomBooking(int book_id, String booking_time){
+        String SQL = "UPDATE books SET booking_time = ? WHERE book_id = ?";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Timestamp bTime;
+        try {
+            bTime = new Timestamp(dateFormat.parse(booking_time).getTime());
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please enter the date in the format yyyy-MM-dd HH:mm:ss");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setTimestamp(1, bTime);
+            pstmt.setInt(2, book_id);
+            pstmt.executeUpdate();
+            System.out.println("Room booking rescheduled successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public void cancelRoomBooking(int book_id){
+        String SQL = "DELETE FROM books WHERE book_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, book_id);
+            pstmt.executeUpdate();
+            System.out.println("Room booking cancelled successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -869,7 +904,10 @@ public class DatabaseOperations {
     }
 
     public void viewEquipmentMaintenance(){
-        String SQL = "SELECT * FROM equipment WHERE equipment_broken = TRUE";
+        String SQL  = "SELECT equipment.equipment_id, equipment.equipment_name, maintains.maintenance_time " +
+             "FROM equipment " +
+             "JOIN maintains ON equipment.equipment_id = maintains.equipment_id " +
+             "WHERE equipment.equipment_broken = TRUE";
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL);
@@ -891,11 +929,11 @@ public class DatabaseOperations {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+
     }
     
-    public void scheduleEquipmentMaintenance(int equipment_id, String maintenance_time){
-        String SQL = "UPDATE equipment SET equipment_broken = TRUE WHERE equipment_id = ?";
-        String SQL2 = "UPDATE equipment SET maintenance_time = ? WHERE equipment_id = ?";
+    public void scheduleEquipmentMaintenance(int equipment_id, String maintenance_time, int admin_id){
+        String SQL = "INSERT INTO maintains(equipment_id, admin_id, maintenance_time) VALUES(?,?,?)";
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Timestamp mTime;
         try {
@@ -906,19 +944,10 @@ public class DatabaseOperations {
         }
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
-            PreparedStatement pstmt = conn.prepareStatement(SQL2)) {
-            pstmt.setTimestamp(1, mTime);
-            pstmt.setInt(2, equipment_id);
-            pstmt.executeUpdate();
-            System.out.println("Maintenance time updated successfully!");
-
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-        }
-
-        try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setInt(1, equipment_id);
+            pstmt.setInt(2, admin_id);
+            pstmt.setTimestamp(3, mTime);
             pstmt.executeUpdate();
             System.out.println("Equipment maintenance scheduled successfully!");
 
@@ -926,6 +955,16 @@ public class DatabaseOperations {
             System.out.println(ex.getMessage());
         }
 
+        SQL = "UPDATE equipment SET equipment_broken = FALSE WHERE equipment_id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, equipment_id);
+            pstmt.executeUpdate();
+            System.out.println("Equipment status updated successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     public void viewClasses(){
@@ -939,10 +978,12 @@ public class DatabaseOperations {
                 int class_id = rs.getInt("class_id");
                 String class_name = rs.getString("class_name");
                 Time class_time = rs.getTime("class_time");
+                int admin_id = rs.getInt("admin_id");
 
                 System.out.println("Class ID: " + class_id);
                 System.out.println("Class Name: " + class_name);
                 System.out.println("Class Time: " + class_time);
+                System.out.println("Admin ID: " + admin_id);
                 System.out.println();
             }
 
@@ -976,6 +1017,45 @@ public class DatabaseOperations {
         }
     }
     
+    public void scheduleClass(int admin_id, String class_name, String class_time){
+        String SQL = "INSERT INTO group_classes(room_id, class_name, class_time) VALUES(?,?,?)";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        Time cTime;
+        try {
+            cTime = new Time(dateFormat.parse(class_time).getTime());
+        } catch (ParseException e) {
+            System.out.println("Invalid time format. Please enter the time in the format HH:mm:ss");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, admin_id);
+            pstmt.setString(2, class_name);
+            pstmt.setTime(3, cTime);
+            pstmt.executeUpdate();
+            System.out.println("Class scheduled successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+
+    }
+
+    public void cancelClass(int class_id){
+        String SQL = "DELETE FROM group_classes WHERE class_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, class_id);
+            pstmt.executeUpdate();
+            System.out.println("Class cancelled successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
     public void viewBalances(){
         String SQL = "SELECT * FROM members WHERE outstanding_balance > 0";
 
@@ -999,6 +1079,90 @@ public class DatabaseOperations {
         }   
     }
 
-    
+    public void billMember(int admin_id, int member_id, int amount){
+        String SQL = "INSERT INTO bills(admin_id, member_id, bill_amount, bill_time) VALUES(?,?,?,?)";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, admin_id);
+            pstmt.setInt(2, member_id);
+            pstmt.setInt(3, amount);
+            pstmt.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+            pstmt.executeUpdate();
+            System.out.println("Bill added successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+
+        SQL = "UPDATE members SET outstanding_balance = outstanding_balance + ? WHERE member_id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, amount);
+            pstmt.setInt(2, member_id);
+            pstmt.executeUpdate();
+            System.out.println("Member balance updated successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public void payBalance(int admin_id, int member_id, int amount) {
+        String SQL = "INSERT INTO bills(admin_id, member_id, bill_amount, bill_time ) VALUES(?,?,?,?)";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, admin_id);
+            pstmt.setInt(2, member_id);
+            pstmt.setInt(3, -amount);
+            pstmt.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+            pstmt.executeUpdate();
+            System.out.println("Payment added successfully!");
+            
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        SQL = "UPDATE members SET outstanding_balance = outstanding_balance - ? WHERE member_id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, amount);
+            pstmt.setInt(2, member_id);
+            pstmt.executeUpdate();
+            System.out.println("Member balance updated successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void viewTransactions(){
+        String SQL = "SELECT * FROM bills";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+            ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                int admin_id = rs.getInt("admin_id");
+                int member_id = rs.getInt("member_id");
+                int bill_amount = rs.getInt("bill_amount");
+                Timestamp bill_time = rs.getTimestamp("bill_time");
+
+                System.out.println("Admin ID: " + admin_id);
+                System.out.println("Member ID: " + member_id);
+                System.out.println("Bill Amount: " + bill_amount);
+                System.out.println("Bill Time: " + bill_time);
+                System.out.println();
+            }
+
+            System.out.println("Transactions retrieved successfully!");
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 }
 
