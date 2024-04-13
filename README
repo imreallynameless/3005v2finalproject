@@ -1,4 +1,19 @@
 COMP 3005 Final Project V2 - Health and Fitness Club Manangement System
 Lei Wu 101186940
 
+Setup:
+Add the JDBC driver to your project.
+
+    Download the PostgreSQL JDBC driver from https://jdbc.postgresql.org/download/
+    Add the .jar file to your project as an external library.
+
+Modidy these lines to match your postgresql server/database information:
+    private final String url = "";
+    private final String user = "";
+    private final String password = "";
+
+to run:
+make sure you have the vscode java extension pack installed
+and then run java on the DatabaseOperations.java file
+
 link to the video: https://youtu.be/1Q6Q6Q6Q6Q6
