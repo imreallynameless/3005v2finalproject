@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 
 public class DatabaseOperations {
 
-    private final String url = "jdbc:postgresql://localhost:5432/3005test4";
+    private final String url = "jdbc:postgresql://localhost:5432/3005test7";
     private final String user = "postgres";
     private final String password = "postgres";
 
@@ -359,8 +359,8 @@ public class DatabaseOperations {
     public void viewSchedule(int member_id) {
         String SQL = "SELECT gc.class_id, gc.class_name, gc.class_time " +
                      "FROM group_classes gc " +
-                     "INNER JOIN class_members cm ON gc.class_id = cm.class_id " +
-                     "WHERE cm.member_id = ?";
+                     "INNER JOIN registers r ON gc.class_id = r.class_id " +
+                     "WHERE r.member_id = ?";
     
         try (Connection conn = DriverManager.getConnection(url, user, password);
              PreparedStatement pstmt = conn.prepareStatement(SQL)) {
@@ -520,7 +520,7 @@ public class DatabaseOperations {
 
     public void registerForClass(int member_id, int class_id) {
         
-        String SQL = "INSERT INTO class_members(member_id, class_id) VALUES(?,?)";
+        String SQL = "INSERT INTO registers(member_id, class_id) VALUES(?,?)";
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
@@ -535,7 +535,7 @@ public class DatabaseOperations {
     }
 
     public void cancelClass(int member_id, int class_id) {
-        String SQL = "DELETE FROM class_members WHERE member_id = ? AND class_id = ?";
+        String SQL = "DELETE FROM registers WHERE member_id = ? AND class_id = ?";
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
@@ -609,7 +609,7 @@ public class DatabaseOperations {
     public void viewTrainerSchedule(int trainer_id){
         String SQL = "SELECT pt.training_id, pt.training_time, m.first_name, m.last_name " +
                      "FROM personal_training pt " +
-                     "INNER JOIN members m ON pt.member_id = m.member_id " +
+                     "LEFT JOIN members m ON pt.member_id = m.member_id " +
                      "WHERE pt.trainer_id = ?";
         
         try (Connection conn = DriverManager.getConnection(url, user, password);
@@ -652,8 +652,8 @@ public class DatabaseOperations {
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {;
             pstmt.setNull(1, java.sql.Types.INTEGER);
-            pstmt.setInt(1, trainer_id);
-            pstmt.setTimestamp(2, session_time);
+            pstmt.setInt(2, trainer_id);
+            pstmt.setTimestamp(3, session_time);
             pstmt.executeUpdate();
             System.out.println("Personal training session scheduled successfully!");
 
@@ -761,10 +761,11 @@ public class DatabaseOperations {
     }
 
     public void viewRoomBookings(){
-        String SQL = "SELECT b.booking_event, b.booking_time, a.admin_id, r.room_name, r.room_capacity " +
+        String SQL = "SELECT b.booking_event, b.booking_time, b.booking_id, a.admin_id, r.room_name, r.room_capacity " +
                       "FROM books b "+
                       "INNER JOIN room r ON b.room_id = r.room_id " +
-                      "INNER JOIN administrators a ON b.admin_id = ? ";
+                      "INNER JOIN administrators a ON b.admin_id = a.admin_id "+
+                      "WHERE b.admin_id IS NOT NULL";
         try {
             Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL);
@@ -776,7 +777,9 @@ public class DatabaseOperations {
                 int admin_id = rs.getInt("admin_id");
                 String room_name = rs.getString("room_name");
                 int room_capacity = rs.getInt("room_capacity");
+                int booking_id = rs.getInt("book_id");
 
+                System.out.println("Booking ID: " + booking_id);
                 System.out.println("Booking Event: " + booking_event);
                 System.out.println("Booking Time: " + booking_time);
                 System.out.println("Admin ID: " + admin_id);
@@ -961,6 +964,43 @@ public class DatabaseOperations {
             pstmt.setInt(1, equipment_id);
             pstmt.executeUpdate();
             System.out.println("Equipment status updated successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public void rescheduleEquipmentMaintenance(int maintenance_id, String maintenance_time){
+        String SQL = "UPDATE maintains SET maintenance_time = ? WHERE maintenance_id = ?";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Timestamp mTime;
+        try {
+            mTime = new Timestamp(dateFormat.parse(maintenance_time).getTime());
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please enter the date in the format yyyy-MM-dd HH:mm:ss");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setTimestamp(1, mTime);
+            pstmt.setInt(2, maintenance_id);
+            pstmt.executeUpdate();
+            System.out.println("Equipment maintenance rescheduled successfully!");
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public void cancelEquipmentMaintenance(int maintenance_id){
+        String SQL = "DELETE FROM maintains WHERE maintenance_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, maintenance_id);
+            pstmt.executeUpdate();
+            System.out.println("Equipment maintenance cancelled successfully!");
 
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());

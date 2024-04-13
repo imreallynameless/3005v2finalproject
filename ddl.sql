@@ -61,7 +61,7 @@ CREATE TABLE bills
         bill_amount INTEGER NOT NULL,
         bill_time TIMESTAMP NOT NULL,
         PRIMARY KEY (admin_id, member_id)
-    )
+    );
  
 CREATE TABLE group_classes
     (
@@ -88,17 +88,17 @@ CREATE TABLE personal_training
 
 CREATE TABLE equipment
     (
-        equipment_id SERIAL PRIMARY KEY,
+        equipment_id SERIAL,
         equipment_name VARCHAR(50) NOT NULL,
         equipment_broken BOOLEAN
     );
 
 CREATE TABLE maintains
     (
+        maintenance_id SERIAL,
         equipment_id INTEGER REFERENCES equipment(equipment_id),
         admin_id INTEGER REFERENCES administrators(admin_id),
-        maintenance_time TIMESTAMP DEFAULT NULL,
-        PRIMARY KEY (equipment_id, admin_id)    
+        maintenance_time TIMESTAMP DEFAULT NULL
     );
 
 CREATE TABLE room
@@ -110,11 +110,10 @@ CREATE TABLE room
 
 CREATE TABLE books
     (
+        booking_id SERIAL PRIMARY KEY,
         room_id INTEGER REFERENCES room(room_id),
         admin_id INTEGER REFERENCES administrators(admin_id),
         booking_time TIMESTAMP NOT NULL,
-        booking_event VARCHAR(50) NOT NULL,
-        PRIMARY KEY (room_id, admin_id)
-
+        booking_event VARCHAR(50) NOT NULL
     );
 

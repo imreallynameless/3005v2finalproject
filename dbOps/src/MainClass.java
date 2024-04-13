@@ -203,27 +203,36 @@ public class MainClass {
                                 else if (scheduleChoice == 2){
                                     dbOps.getAvailableSessions();
                                     System.out.println("Enter session id: ");
+                                    System.out.println("Or enter 0 to skip booking a session");
                                     int session_id = scanner.nextInt();
                                     scanner.nextLine();
-                                    dbOps.registerForSession(id, session_id);
+                                    if (session_id != 0){
+                                        dbOps.registerForSession(id, session_id);
+                                    }
                                 }
 
                                 else if (scheduleChoice == 3){
                                     dbOps.viewSchedule(id);
                                     System.out.println("Enter Training id: ");
+                                    System.out.println("Or enter 0 to skip rescheduling a session");
                                     int session_id = scanner.nextInt();
                                     scanner.nextLine();
-                                    System.out.println("Enter new session time (in format yyyy-MM-dd HH:mm:ss): ");
-                                    String new_session_time = scanner.nextLine();
-                                    dbOps.reschedulePersonalTraining(session_id, new_session_time);
+                                    if (session_id != 0){                                        
+                                        System.out.println("Enter new session time (in format yyyy-MM-dd HH:mm:ss): ");
+                                        String new_session_time = scanner.nextLine();
+                                        dbOps.reschedulePersonalTraining(session_id, new_session_time);
+                                    }
                                 }
 
                                 else if (scheduleChoice == 4){
                                     dbOps.viewSchedule(id);
                                     System.out.println("Enter session id: ");
+                                    System.out.println("Or enter 0 to skip rescheduling a session");
                                     int session_id = scanner.nextInt();
                                     scanner.nextLine();
-                                    dbOps.cancelPersonalTraining(session_id);
+                                    if (session_id != 0){
+                                        dbOps.cancelPersonalTraining(session_id);
+                                    }
                                 }
 
                                 else if (scheduleChoice == 5){
@@ -501,7 +510,9 @@ public class MainClass {
                             System.out.println("Please select an option below:");
                             System.out.println("1. View Equipment Maintenance Schedule");
                             System.out.println("2. Schedule Equipment Maintenance");
-                            System.out.println("3. exit");
+                            System.out.println("3. Reschedule Equipment Maintenance");
+                            System.out.println("4. Cancel Equipment Maintenance");
+                            System.out.println("5. exit");
                             System.out.println("Enter your choice: ");
                             int equipmentChoice = scanner.nextInt();
                             scanner.nextLine();
@@ -518,6 +529,22 @@ public class MainClass {
                                 dbOps.scheduleEquipmentMaintenance(equipment_id, maintenance_time, id);
                             }
                             else if (equipmentChoice == 3){
+                                dbOps.viewEquipmentMaintenance();
+                                System.out.println("Enter maintenance id: ");
+                                int maintenance_id = scanner.nextInt();
+                                scanner.nextLine();
+                                System.out.println("Enter new maintenance time (in format yyyy-MM-dd HH:mm:ss): ");
+                                String new_maintenance_time = scanner.nextLine();
+                                dbOps.rescheduleEquipmentMaintenance(maintenance_id, new_maintenance_time);
+                            }
+                            else if (equipmentChoice == 4){
+                                dbOps.viewEquipmentMaintenance();
+                                System.out.println("Enter maintenance id: ");
+                                int maintenance_id = scanner.nextInt();
+                                scanner.nextLine();
+                                dbOps.cancelEquipmentMaintenance(maintenance_id);
+                            }
+                            else if (equipmentChoice == 5){
                                 equipmentFlag = false;
                             }
                             else{
