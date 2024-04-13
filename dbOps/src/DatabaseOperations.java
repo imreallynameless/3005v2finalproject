@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 
 public class DatabaseOperations {
 
-    private final String url = "jdbc:postgresql://localhost:5432/3005GYM";
+    private final String url = "jdbc:postgresql://localhost:5432/3005health";
     private final String user = "postgres";
     private final String password = "postgres";
 
@@ -1081,9 +1081,19 @@ public class DatabaseOperations {
 
     }
 
-    public void cancelClass(int class_id){
-        String SQL = "DELETE FROM group_classes WHERE class_id = ?";
+    public void cancelClass(int class_id) {
+        String SQL = "DELETE FROM registers WHERE class_id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, class_id);
+            pstmt.executeUpdate();
+            System.out.println("Class cancelled successfully!");
 
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+
+        SQL = "DELETE FROM group_classes WHERE class_id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setInt(1, class_id);
@@ -1094,19 +1104,20 @@ public class DatabaseOperations {
             System.out.println(ex.getMessage());
         }
     }
+    
 
     public void viewBalances(){
-        String SQL = "SELECT m.member_first_name, m.member_last_name, m.member_id, m.member_email,m.outstanding_balance " +
+        String SQL = "SELECT m.first_name, m.last_name, m.member_id, m.member_email, m.outstanding_balance " +
                      "FROM members m " +
                      "WHERE m.outstanding_balance > 0";
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL);
             ResultSet rs = pstmt.executeQuery()) {
-
+            
             while (rs.next()) {
-                String first_name = rs.getString("member_first_name");
-                String last_name = rs.getString("member_last_name");
+                String first_name = rs.getString("first_name");
+                String last_name = rs.getString("last_name");
                 int member_id = rs.getInt("member_id");
                 String member_email = rs.getString("member_email");
                 int outstanding_balance = rs.getInt("outstanding_balance");
