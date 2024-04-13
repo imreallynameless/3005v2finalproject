@@ -777,7 +777,7 @@ public class DatabaseOperations {
                 int admin_id = rs.getInt("admin_id");
                 String room_name = rs.getString("room_name");
                 int room_capacity = rs.getInt("room_capacity");
-                int booking_id = rs.getInt("book_id");
+                int booking_id = rs.getInt("booking_id");
 
                 System.out.println("Booking ID: " + booking_id);
                 System.out.println("Booking Event: " + booking_event);
@@ -845,7 +845,7 @@ public class DatabaseOperations {
     }
 
     public void rescheduleRoomBooking(int book_id, String booking_time){
-        String SQL = "UPDATE books SET booking_time = ? WHERE book_id = ?";
+        String SQL = "UPDATE books SET booking_time = ? WHERE booking_id = ?";
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Timestamp bTime;
         try {
@@ -868,7 +868,7 @@ public class DatabaseOperations {
     }
 
     public void cancelRoomBooking(int book_id){
-        String SQL = "DELETE FROM books WHERE book_id = ?";
+        String SQL = "DELETE FROM books WHERE booking_id = ?";
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
@@ -907,22 +907,22 @@ public class DatabaseOperations {
     }
 
     public void viewEquipmentMaintenance(){
-        String SQL  = "SELECT equipment.equipment_id, equipment.equipment_name, maintains.maintenance_time " +
-             "FROM equipment " +
-             "JOIN maintains ON equipment.equipment_id = maintains.equipment_id " +
-             "WHERE equipment.equipment_broken = TRUE";
-
+        String SQL = "SELECT e.equipment_name, m.maintenance_id, m.admin_id, m.maintenance_time " +
+                     "FROM equipment e " +
+                     "INNER JOIN maintains m ON e.equipment_id = m.equipment_id";
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL);
             ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                int equipment_id = rs.getInt("equipment_id");
                 String equipment_name = rs.getString("equipment_name");
+                int maintenance_id = rs.getInt("maintenance_id");
+                int admin_id = rs.getInt("admin_id");
                 Timestamp maintenance_time = rs.getTimestamp("maintenance_time");
 
-                System.out.println("Equipment ID: " + equipment_id);
                 System.out.println("Equipment Name: " + equipment_name);
+                System.out.println("Maintenance ID: " + maintenance_id);
+                System.out.println("Admin ID: " + admin_id);
                 System.out.println("Maintenance Time: " + maintenance_time);
                 System.out.println();
             }
@@ -932,7 +932,6 @@ public class DatabaseOperations {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-
     }
     
     public void scheduleEquipmentMaintenance(int equipment_id, String maintenance_time, int admin_id){
@@ -958,7 +957,7 @@ public class DatabaseOperations {
             System.out.println(ex.getMessage());
         }
 
-        SQL = "UPDATE equipment SET equipment_broken = FALSE WHERE equipment_id = ?";
+        SQL = "UPDATE equipment SET equipment_broken = TRUE WHERE equipment_id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setInt(1, equipment_id);
@@ -1017,7 +1016,7 @@ public class DatabaseOperations {
             while (rs.next()) {
                 int class_id = rs.getInt("class_id");
                 String class_name = rs.getString("class_name");
-                Time class_time = rs.getTime("class_time");
+                Timestamp class_time = rs.getTimestamp("class_time");
                 int admin_id = rs.getInt("admin_id");
 
                 System.out.println("Class ID: " + class_id);
@@ -1036,10 +1035,10 @@ public class DatabaseOperations {
 
     public void updateClassSchedule(int class_id, String schedule_time){
         String SQL = "UPDATE group_classes SET class_time = ? WHERE class_id = ?";
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        Time cTime;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Timestamp cTime;
         try {
-            cTime = new Time(dateFormat.parse(schedule_time).getTime());
+            cTime = new Timestamp(dateFormat.parse(schedule_time).getTime());
         } catch (ParseException e) {
             System.out.println("Invalid time format. Please enter the time in the format HH:mm:ss");
             return;
@@ -1047,7 +1046,7 @@ public class DatabaseOperations {
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
-            pstmt.setTime(1, cTime);
+            pstmt.setTimestamp(1, cTime);
             pstmt.setInt(2, class_id);
             pstmt.executeUpdate();
             System.out.println("Class schedule updated successfully!");
@@ -1058,11 +1057,11 @@ public class DatabaseOperations {
     }
     
     public void scheduleClass(int admin_id, String class_name, String class_time){
-        String SQL = "INSERT INTO group_classes(room_id, class_name, class_time) VALUES(?,?,?)";
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        Time cTime;
+        String SQL = "INSERT INTO group_classes(admin_id, class_name, class_time) VALUES(?,?,?)";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Timestamp cTime;
         try {
-            cTime = new Time(dateFormat.parse(class_time).getTime());
+            cTime = new Timestamp(dateFormat.parse(class_time).getTime());
         } catch (ParseException e) {
             System.out.println("Invalid time format. Please enter the time in the format HH:mm:ss");
             return;
@@ -1072,7 +1071,7 @@ public class DatabaseOperations {
             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setInt(1, admin_id);
             pstmt.setString(2, class_name);
-            pstmt.setTime(3, cTime);
+            pstmt.setTimestamp(3, cTime);
             pstmt.executeUpdate();
             System.out.println("Class scheduled successfully!");
 
@@ -1097,17 +1096,25 @@ public class DatabaseOperations {
     }
 
     public void viewBalances(){
-        String SQL = "SELECT * FROM members WHERE outstanding_balance > 0";
+        String SQL = "SELECT m.member_first_name, m.member_last_name, m.member_id, m.member_email,m.outstanding_balance " +
+                     "FROM members m " +
+                     "WHERE m.outstanding_balance > 0";
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
             PreparedStatement pstmt = conn.prepareStatement(SQL);
             ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
+                String first_name = rs.getString("member_first_name");
+                String last_name = rs.getString("member_last_name");
                 int member_id = rs.getInt("member_id");
+                String member_email = rs.getString("member_email");
                 int outstanding_balance = rs.getInt("outstanding_balance");
 
+                System.out.println("First Name: " + first_name);
+                System.out.println("Last Name: " + last_name);
                 System.out.println("Member ID: " + member_id);
+                System.out.println("Email: " + member_email);
                 System.out.println("Outstanding Balance: " + outstanding_balance);
                 System.out.println();
             }

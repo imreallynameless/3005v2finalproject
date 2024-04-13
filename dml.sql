@@ -29,9 +29,9 @@ VALUES
 -- Inserting into the trainers table
 INSERT INTO trainers (trainer_email, trainer_password, first_name, last_name) 
 VALUES 
-    ('trainer1@example.com', 'pass123', 'David', 'Brown'),
-    ('trainer2@example.com', 'pass456', 'Emily', 'Wilson'),
-    ('trainer3@example.com', 'pass789', 'Michael', 'Taylor');
+    ('david@gym.com', 'pass123', 'David', 'Brown'),
+    ('emily@gym.com', 'pass456', 'Emily', 'Wilson'),
+    ('taylor@gym.com', 'pass789', 'Michael', 'Taylor');
 
 -- Inserting into the personal_training table
 INSERT INTO personal_training (member_id, trainer_id, training_time) 
@@ -61,16 +61,15 @@ VALUES
 -- Inserting into the administrators table
 INSERT INTO administrators (admin_email, admin_password, first_name, last_name) 
 VALUES 
-    ('admin1@example.com', 'adminpass123', 'Admin', 'One'),
-    ('admin2@example.com', 'adminpass456', 'Admin', 'Two'),
-    ('admin3@example.com', 'adminpass789', 'Admin', 'Three');
+    ('larry@gym.com', 'adminpass123', 'Larry', 'Bird'),
+    ('victor@gym.com', 'adminpass456', 'Victor', 'Lai');
 
 -- Inserting into the group_classes table
 INSERT INTO group_classes (admin_id, class_name, class_time) 
 VALUES 
     (1, 'Yoga Class', '2024-04-13 09:00:00'),
     (2, 'Zumba Class', '2024-04-13 10:00:00'),
-    (3, 'Pilates Class', '2024-04-13 11:00:00');
+    (2, 'Pilates Class', '2024-04-13 11:00:00');
 
 -- Inserting into the registers table
 INSERT INTO registers (class_id, member_id) 
